@@ -123,6 +123,7 @@ Version 1 exposes a deliberately small surface:
 - `hermes.status`
 - `hermes.continue`
 - `hermes.result`
+- `hermes.approve`
 - `hermes.cancel`
 
 Version 1.1 adds:
@@ -162,6 +163,10 @@ Adds a new instruction to an existing Hermes session/run context without requiri
 
 Returns normalized final output and artifacts.
 
+### hermes.approve
+
+Approves or denies a specific pending runtime action. Approval remains subject to tenant policy; the tool cannot authorize an action that server-side policy forbids.
+
 ### hermes.cancel
 
 Stops an active run when supported by the runtime.
@@ -173,7 +178,7 @@ Each run declares one of four requested autonomy levels:
 - `plan` — investigate and propose; no external side effects.
 - `approve_actions` — prepare actions, but externally consequential actions require approval.
 - `execute` — perform all actions permitted by tenant policy.
-- `continuous` — persistent objective, potentially involving scheduled execution and repeated checks.
+- `continuous` — request a persistent objective. In V1 this may only remain active within Hermes' supported run/session lifecycle; scheduled/repeated execution is not exposed through the gateway until `hermes.schedule` ships in V1.1.
 
 Requested autonomy is capped by server-side tenant policy.
 
@@ -348,7 +353,7 @@ Return `HERMES_UNAVAILABLE` with retryability and last-known health metadata whe
 
 ### Approval required
 
-Return `AWAITING_APPROVAL` with run id, requested action, and risk metadata.
+Return `AWAITING_APPROVAL` with run id, requested action, and risk metadata. The caller may respond through `hermes.approve` if tenant policy allows approval of that action.
 
 ### Policy violation
 
@@ -410,7 +415,7 @@ Version 1 includes:
 4. Tenant database.
 5. BYO Hermes registration.
 6. First Oracle VPS-backed tenant connection.
-7. `run`, `status`, `result`, `continue`, `cancel`.
+7. `run`, `status`, `result`, `continue`, `approve`, `cancel`.
 8. Server-side permission policies.
 9. Basic runtime health checks.
 10. Basic web dashboard for connected runtimes and run history.
@@ -461,7 +466,7 @@ Test four layers independently:
 
 Primary V1 acceptance test:
 
-> From ChatGPT, a user can ask Hermes to perform a multi-step job. Hermes can delegate/use tools. ChatGPT can inspect status, receive an approval-required response, approve/continue where policy permits, cancel an active run, and retrieve a final structured result without receiving Hermes server credentials.
+> From ChatGPT, a user can ask Hermes to perform a multi-step job. Hermes can delegate/use tools. ChatGPT can inspect status, receive an approval-required response, approve or deny the pending action through `hermes.approve`, continue the run, cancel an active run, and retrieve a final structured result without receiving Hermes server credentials.
 
 ## 23. Deployment strategy
 
@@ -532,6 +537,6 @@ V1 is successful when:
 - BYO routing works against the owner's Oracle-hosted Hermes instance.
 - Credentials never appear in ChatGPT-visible payloads.
 - Policy enforcement blocks disallowed actions server-side.
-- Run state, approval state, cancellation, continuation, and final results are normalized.
+- Run state, approval state, approval/denial, cancellation, continuation, and final results are normalized.
 - A real multi-step Hermes job passes the end-to-end acceptance test.
 - Architecture supports later managed tenant runtimes without changing the ChatGPT tool contract.
