@@ -26,6 +26,12 @@ Status: **in progress / not complete**.
   - `feature/chatgpt-hermes-gateway-v1`
 - That branch currently contains a detailed implementation plan rather than the planned gateway package implementation.
 
+## Verified external development environment
+
+- On 2026-08-24, the project owner reported successful creation of a dedicated Codex Cloud environment for `davidlifschitz/hermes-agent-grok`.
+- Treat this environment as the cloud development surface for M1–M4 work.
+- Its immediate purpose is to verify the actual Hermes remote-control surface before implementing the shared runtime adapter/control plane.
+
 ## Verified not yet implemented as project-specific product code
 
 The current audit did not find the planned shared product implementation under paths such as:
@@ -75,7 +81,7 @@ were not present on `main` and exact file fetches returned 404.
 
 ## Immediate next actions
 
-1. Inspect and verify the actual current Hermes remote runtime/session interface.
+1. Use the Codex Cloud environment to inspect and verify the actual current Hermes remote runtime/session interface.
 2. Reconcile the V1 implementation plan with verified Hermes capabilities.
 3. Implement the shared runtime adapter/control-plane foundation.
 4. Prove a programmatic Hermes task lifecycle before building further product UX.
