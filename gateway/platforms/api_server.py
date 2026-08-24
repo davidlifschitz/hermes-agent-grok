@@ -304,6 +304,8 @@ class APIServerAdapter(BasePlatformAdapter):
         self._response_store = ResponseStore()
         # Active run streams: run_id -> asyncio.Queue of SSE event dicts
         self._run_streams: Dict[str, "asyncio.Queue[Optional[Dict]]"] = {}
+        # The queue is destructive, so enforce its actual single-consumer contract.
+        self._run_subscribers: set[str] = set()
         # Creation timestamps for orphaned-run TTL sweep
         self._run_streams_created: Dict[str, float] = {}
         self._session_db: Optional[Any] = None  # Lazy-init SessionDB for session continuity
@@ -1489,6 +1491,13 @@ class APIServerAdapter(BasePlatformAdapter):
 
         q = self._run_streams[run_id]
 
+        if run_id in self._run_subscribers:
+            return web.json_response(
+                _openai_error("Run event stream already has a subscriber", code="run_stream_in_use"),
+                status=409,
+            )
+        self._run_subscribers.add(run_id)
+
         response = web.StreamResponse(
             status=200,
             headers={
@@ -1497,9 +1506,8 @@ class APIServerAdapter(BasePlatformAdapter):
                 "X-Accel-Buffering": "no",
             },
         )
-        await response.prepare(request)
-
         try:
+            await response.prepare(request)
             while True:
                 try:
                     event = await asyncio.wait_for(q.get(), timeout=30.0)
@@ -1515,6 +1523,7 @@ class APIServerAdapter(BasePlatformAdapter):
         except Exception as exc:
             logger.debug("[api_server] SSE stream error for run %s: %s", run_id, exc)
         finally:
+            self._run_subscribers.discard(run_id)
             self._run_streams.pop(run_id, None)
             self._run_streams_created.pop(run_id, None)
 
@@ -1528,10 +1537,12 @@ class APIServerAdapter(BasePlatformAdapter):
             stale = [
                 run_id
                 for run_id, created_at in list(self._run_streams_created.items())
-                if now - created_at > self._RUN_STREAM_TTL
+                if run_id not in self._run_subscribers
+                and now - created_at > self._RUN_STREAM_TTL
             ]
             for run_id in stale:
                 logger.debug("[api_server] sweeping orphaned run %s", run_id)
+                self._run_subscribers.discard(run_id)
                 self._run_streams.pop(run_id, None)
                 self._run_streams_created.pop(run_id, None)
 

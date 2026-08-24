@@ -13,6 +13,13 @@ Status: **in progress / not complete**.
 ## Verified present in the repository
 
 - The repository is a Hermes Agent fork with the upstream agent/runtime/CLI/gateway codebase.
+- Verified working in source and protocol tests: the gateway API server at
+  `gateway/platforms/api_server.py` exposes `POST /v1/runs` and one-shot
+  `GET /v1/runs/{run_id}/events` SSE. The shared
+  `HermesHttpRuntimeAdapter` proves health -> submit -> observe -> terminal
+  result against that wire contract.
+- Verified working in source/tests: Portal device OAuth, refresh, short-lived
+  inference key minting, and generic HTTP MCP OAuth support.
 - `AGENTS.md` documents the existing Hermes codebase and development conventions.
 - A product architecture spec exists at:
   - `docs/superpowers/specs/2026-08-23-chatgpt-hermes-app-design.md`
@@ -68,6 +75,19 @@ hermes_cli/api_app.py
 were not present on `main` and exact file fetches returned 404.
 
 **Consequence:** do not implement the runtime adapter from that assumption alone. First verify the actual current Hermes remote-control surface (`hermes serve`, gateway/runtime modules, or another supported interface) and update the implementation plan accordingly.
+
+**Resolved finding:** the equivalent but narrower implementation is
+`gateway/platforms/api_server.py`. It is launched with `hermes gateway run`
+when `API_SERVER_ENABLED=true`; no top-level `hermes serve` exists.
+
+Verified absent from its asynchronous run protocol: durable run status/result,
+replay/reconnect, cancellation, and approvals. Continuation via `/v1/runs`
+remains partial/unproven. Unsupported adapter operations fail explicitly.
+
+Verified absent in this checkout: Hermes Cloud agent discovery and lifecycle
+management. Unverified/account-dependent: the live tools exposed by
+`https://portal.nousresearch.com/mcp`, live Portal org context, and a real
+provider-backed remote task.
 
 ## Current architectural decisions
 

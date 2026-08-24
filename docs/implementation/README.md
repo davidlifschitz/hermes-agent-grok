@@ -10,6 +10,8 @@ Detailed historical/current design work already exists under `docs/superpowers/`
   - `docs/superpowers/specs/2026-08-23-chatgpt-hermes-app-design.md`
 - V1 gateway implementation plan:
   - `docs/superpowers/plans/2026-08-23-chatgpt-hermes-gateway-v1.md` on `feature/chatgpt-hermes-gateway-v1`
+- Evidence-corrected M1 runtime adapter plan:
+  - `docs/implementation/2026-08-24-m1-verified-runtime-adapter.md`
 
 ## Rule
 
