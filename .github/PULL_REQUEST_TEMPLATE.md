@@ -1,30 +1,3 @@
-## Hermes for ChatGPT roadmap alignment
-
-<!-- Required for changes that affect the Hermes ↔ ChatGPT product. Use N/A for unrelated upstream Hermes work. -->
-
-- **Milestone:** M0 / M1 / M2 / M3 / M4 / M5 / M6 / N/A
-- **Surface:** shared / private / public / upstream Hermes / N/A
-- **Capability advanced:**
-- **Blocks/unblocks:**
-
-### End-state compatibility
-
-- **Uses the shared control-plane/runtime boundaries:** Yes / No / N/A
-- **Creates a private-only implementation that must later be rewritten for publication:** Yes / No / N/A
-- **Temporary infrastructure or debt:**
-- **Production replacement/removal path:**
-
-### Product-state checks
-
-- [ ] Unsupported upstream capabilities fail explicitly rather than being fabricated — or N/A
-- [ ] Credentials/secrets are not committed, logged, or returned to model context — or N/A
-- [ ] Tenant/auth boundaries are preserved where applicable — or N/A
-- [ ] End-to-end behavior was verified when this changes an E2E path, or the unverified portion is documented — or N/A
-- [ ] `STATE.md` was updated if verified project reality changed — or N/A
-- [ ] An ADR was added if this changes a long-lived architecture decision — or N/A
-
----
-
 ## What does this PR do?
 
 <!-- Describe the change clearly. What problem does it solve? Why is this approach the right one? -->
@@ -99,3 +72,4 @@ Fixes #
 ## Screenshots / Logs
 
 <!-- If applicable, add screenshots or log output showing the fix/feature in action. -->
+
